@@ -1,6 +1,17 @@
 from datetime import datetime
+import importlib.util
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -19,6 +30,14 @@ from app.models import (
 
 auth_bp = Blueprint("auth", __name__)
 mod_bp = Blueprint("mod", __name__)
+
+
+def _get_weasyprint():
+    if importlib.util.find_spec("weasyprint") is None:
+        return None
+    from weasyprint import HTML
+
+    return HTML
 
 
 @auth_bp.route("/", methods=["GET"])
@@ -285,3 +304,26 @@ def report(shift_id):
     if shift.status == "open" and shift.mod_id != current_user.id:
         abort(403)
     return render_template("report.html", shift=shift)
+
+
+@mod_bp.route("/report/<int:shift_id>/pdf")
+@login_required
+def report_pdf(shift_id):
+    shift = Shift.query.get_or_404(shift_id)
+    if shift.status == "open" and shift.mod_id != current_user.id:
+        abort(403)
+    html_renderer = _get_weasyprint()
+    if html_renderer is None:
+        flash(
+            "PDF generation is unavailable because WeasyPrint is not installed on the server.",
+            "error",
+        )
+        return redirect(url_for("mod.report", shift_id=shift.id))
+    rendered_html = render_template("report.html", shift=shift, pdf_mode=True)
+    pdf_bytes = html_renderer(string=rendered_html, base_url=current_app.root_path).write_pdf()
+    response = make_response(pdf_bytes)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = (
+        f"attachment; filename=mod-report-{shift.date.isoformat()}.pdf"
+    )
+    return response
