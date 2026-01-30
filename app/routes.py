@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 import importlib.util
 from zoneinfo import ZoneInfo
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 from flask import (
     Blueprint,
