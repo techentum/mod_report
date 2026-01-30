@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Downtime Search</h2>
+    </div>
+    <form method="get" class="form-grid">
+      <label>
+        Keyword
+        <input type="text" name="q" value="{{ query_params.get('q', '') }}" placeholder="Outlet, reason" />
+      </label>
+      <label>
+        MOD
+        <select name="mod_id">
+          <option value="">All MODs</option>
+          {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_mod_id == user.id %}selected{% endif %}>
+              {{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Start Date
+        <input type="date" name="start_date" value="{{ query_params.get('start_date', '') }}" />
+      </label>
+      <label>
+        End Date
+        <input type="date" name="end_date" value="{{ query_params.get('end_date', '') }}" />
+      </label>
+      <button type="submit" class="primary">Search</button>
+    </form>
+  </section>
+
+  <section class="card">
+    {% if results %}
+      <div class="table">
+        <div class="table-row header">
+          <span>Date</span>
+          <span>Outlet</span>
+          <span>Start</span>
+          <span>End</span>
+          <span>MOD</span>
+          <span>Report</span>
+        </div>
+        {% for downtime in results %}
+          <div class="table-row">
+            <span>{{ downtime.shift.date.strftime('%B %d, %Y') }}</span>
+            <span>{{ downtime.outlet }}</span>
+            <span>{{ downtime.start_time.strftime('%I:%M %p') }}</span>
+            <span>{{ downtime.end_time.strftime('%I:%M %p') if downtime.end_time else 'Ongoing' }}</span>
+            <span>{{ downtime.shift.mod.name }}</span>
+            <span><a href="{{ url_for('mod.report', shift_id=downtime.shift.id) }}">View</a></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No downtime entries match this search yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

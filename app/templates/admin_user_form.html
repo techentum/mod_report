@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card narrow">
+    <div class="card-header">
+      <h2>{{ 'Edit User' if user else 'Add User' }}</h2>
+      <a class="button" href="{{ url_for('mod.admin_users') }}">Back to Users</a>
+    </div>
+    <form method="post" class="form-grid">
+      <label>
+        Name
+        <input type="text" name="name" value="{{ user.name if user else '' }}" required />
+      </label>
+      <label>
+        Email
+        <input type="email" name="email" value="{{ user.email if user else '' }}" required />
+      </label>
+      <label>
+        Job Title
+        <input type="text" name="job_title" value="{{ user.job_title if user else '' }}" />
+      </label>
+      <label>
+        Timezone
+        <select name="timezone">
+          <option value="">Select timezone</option>
+          {% for tz in timezones %}
+            <option value="{{ tz }}" {% if user and user.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="full-span">
+        Password {{ '(leave blank to keep current)' if user else '' }}
+        <input type="password" name="password" {% if not user %}required{% endif %} />
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" name="is_admin" {% if user and user.is_admin %}checked{% endif %} />
+        <span>Grant admin access</span>
+      </label>
+      <button type="submit" class="primary full-span">{{ 'Save Changes' if user else 'Create User' }}</button>
+    </form>
+  </section>
+{% endblock %}

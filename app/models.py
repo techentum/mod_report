@@ -5,6 +5,13 @@ from flask_login import UserMixin
 from app import db, login_manager
 
 
+shift_editors = db.Table(
+    "shift_editors",
+    db.Column("shift_id", db.Integer, db.ForeignKey("shift.id"), primary_key=True),
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
+)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -17,8 +24,12 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     timezone = db.Column(db.String(120), nullable=True)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
     shifts = db.relationship("Shift", backref="mod", lazy=True)
     comments = db.relationship("ReportComment", backref="author", lazy=True)
+    edited_shifts = db.relationship(
+        "Shift", secondary=shift_editors, back_populates="editors", lazy="dynamic"
+    )
 
 
 class Shift(db.Model):
@@ -75,6 +86,9 @@ class Shift(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
         order_by="ReportComment.created_at.asc()",
+    )
+    editors = db.relationship(
+        "User", secondary=shift_editors, back_populates="edited_shifts", lazy="subquery"
     )
 
 

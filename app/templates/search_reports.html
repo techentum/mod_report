@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Report Search</h2>
+    </div>
+    <form method="get" class="form-grid">
+      <label>
+        Keyword
+        <input type="text" name="q" value="{{ query_params.get('q', '') }}" placeholder="MOD name, schedule, notes" />
+      </label>
+      <label>
+        MOD
+        <select name="mod_id">
+          <option value="">All MODs</option>
+          {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_mod_id == user.id %}selected{% endif %}>
+              {{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Status
+        <select name="status">
+          <option value="">All statuses</option>
+          <option value="open" {% if query_params.get('status') == 'open' %}selected{% endif %}>Open</option>
+          <option value="closed" {% if query_params.get('status') == 'closed' %}selected{% endif %}>Closed</option>
+        </select>
+      </label>
+      <label>
+        Start Date
+        <input type="date" name="start_date" value="{{ query_params.get('start_date', '') }}" />
+      </label>
+      <label>
+        End Date
+        <input type="date" name="end_date" value="{{ query_params.get('end_date', '') }}" />
+      </label>
+      <button type="submit" class="primary">Search</button>
+    </form>
+  </section>
+
+  <section class="card">
+    {% if results %}
+      <div class="table">
+        <div class="table-row header">
+          <span>Date</span>
+          <span>MOD</span>
+          <span>Schedule</span>
+          <span>Status</span>
+          <span>Occupancy</span>
+          <span>Report</span>
+        </div>
+        {% for shift in results %}
+          <div class="table-row">
+            <span>{{ shift.date.strftime('%B %d, %Y') }}</span>
+            <span>
+              <span class="name-with-title">{{ shift.mod.name }}</span>
+              {% if shift.mod.job_title %}
+                <span class="job-title">{{ shift.mod.job_title }}</span>
+              {% endif %}
+            </span>
+            <span>{{ shift.schedule }}</span>
+            <span>{{ shift.status|capitalize }}</span>
+            <span>{{ shift.occupancy or '-' }}%</span>
+            <span><a href="{{ url_for('mod.report', shift_id=shift.id) }}">View</a></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No reports match this search yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

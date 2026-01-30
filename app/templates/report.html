@@ -9,7 +9,7 @@
       {% if not pdf_mode|default(false) %}
         <div class="report-actions">
           <a class="button" href="{{ url_for('mod.report_pdf', shift_id=shift.id) }}">Download PDF</a>
-          {% if shift.mod_id == current_user.id %}
+          {% if shift.mod_id == current_user.id or current_user.is_admin %}
             <form method="post" action="{{ url_for('mod.delete_shift', shift_id=shift.id) }}">
               <button type="submit" class="button button-danger" onclick="return confirm('Delete this shift report? This cannot be undone.');">
                 Delete Shift
@@ -39,6 +39,21 @@
       <div>
         <p><strong>NPS Score:</strong> {{ shift.nps_score or "-" }}</p>
         <p><strong>NPS Rank:</strong> {{ shift.nps_rank or "-" }}</p>
+        <p><strong>Additional Editors:</strong></p>
+        {% if shift.editors %}
+          <ul class="list compact">
+            {% for editor in shift.editors %}
+              <li>
+                <span class="name-with-title">{{ editor.name }}</span>
+                {% if editor.job_title %}
+                  <span class="job-title">{{ editor.job_title }}</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">None assigned.</p>
+        {% endif %}
       </div>
     </div>
   </section>

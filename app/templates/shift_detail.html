@@ -5,11 +5,13 @@
       <h2>Active Shift • {{ shift.date.strftime('%B %d, %Y') }} ({{ shift.schedule }})</h2>
       <div class="header-actions">
         <span class="pill">Open</span>
-        <form method="post" action="{{ url_for('mod.delete_shift', shift_id=shift.id) }}">
-          <button type="submit" class="button button-danger" onclick="return confirm('Delete this shift? This cannot be undone.');">
-            Delete Shift
-          </button>
-        </form>
+        {% if shift.mod_id == current_user.id or current_user.is_admin %}
+          <form method="post" action="{{ url_for('mod.delete_shift', shift_id=shift.id) }}">
+            <button type="submit" class="button button-danger" onclick="return confirm('Delete this shift? This cannot be undone.');">
+              Delete Shift
+            </button>
+          </form>
+        {% endif %}
       </div>
     </div>
     <div class="grid three">
@@ -28,8 +30,76 @@
         </p>
         <p><strong>Created:</strong> {{ created_at_display }}</p>
       </div>
+      <div>
+        <p><strong>Additional Editors:</strong></p>
+        {% if shift.editors %}
+          <ul class="list compact">
+            {% for editor in shift.editors %}
+              <li>
+                <span class="name-with-title">{{ editor.name }}</span>
+                {% if editor.job_title %}
+                  <span class="job-title">{{ editor.job_title }}</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">No additional editors assigned.</p>
+        {% endif %}
+      </div>
     </div>
   </section>
+
+  {% if shift.mod_id == current_user.id or current_user.is_admin %}
+    <section class="card">
+      <div class="card-header">
+        <h3>Collaborators</h3>
+        <span class="muted">Add teammates who can help edit this shift.</span>
+      </div>
+      <form method="post" action="{{ url_for('mod.update_shift_editors', shift_id=shift.id) }}" class="form-grid">
+        <label class="full-span">
+          Additional Editors
+          <div class="checkbox-grid">
+            {% for user in users %}
+              {% if user.id != shift.mod_id %}
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="editor_ids"
+                    value="{{ user.id }}"
+                    {% if user in shift.editors %}checked{% endif %}
+                  />
+                  <span>{{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}</span>
+                </label>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </label>
+        <button type="submit" class="primary">Update Editors</button>
+      </form>
+    </section>
+  {% endif %}
+
+  {% if current_user.is_admin %}
+    <section class="card">
+      <div class="card-header">
+        <h3>Admin Controls</h3>
+        <span class="muted">Reassign an open shift to another MOD.</span>
+      </div>
+      <form method="post" action="{{ url_for('mod.reassign_shift', shift_id=shift.id) }}" class="form-grid">
+        <label>
+          Reassign MOD
+          <select name="mod_id" required>
+            <option value="">Select MOD</option>
+            {% for user in users %}
+              <option value="{{ user.id }}">{{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="button">Reassign Shift</button>
+      </form>
+    </section>
+  {% endif %}
 
   <section class="card">
     <div class="card-header">
@@ -240,7 +310,17 @@
       <label class="full-span">Suggestions <textarea name="suggestions">{{ shift.suggestions or '' }}</textarea></label>
       <label class="full-span">Shift Notes <textarea name="shift_notes">{{ shift.shift_notes or '' }}</textarea></label>
       <label>Pass Down Time <input type="time" name="pass_down_time" value="{{ shift.pass_down_time.strftime('%H:%M') if shift.pass_down_time else '' }}" /></label>
-      <label>Next MOD <input type="text" name="pass_down_next_mod" value="{{ shift.pass_down_next_mod or '' }}" /></label>
+      <label>
+        Next MOD
+        <select name="pass_down_next_mod">
+          <option value="">Select next MOD</option>
+          {% for user in users %}
+            <option value="{{ user.id }}" {% if shift.pass_down_next_mod == user.name %}selected{% endif %}>
+              {{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
       <label class="full-span">Pass Down Notes <textarea name="pass_down_notes">{{ shift.pass_down_notes or '' }}</textarea></label>
       <button
         type="submit"
