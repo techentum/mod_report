@@ -6,6 +6,10 @@
     </div>
     <form method="post" class="form-grid">
       <label class="full-span">
+        Job Title
+        <input type="text" name="job_title" value="{{ current_user.job_title or '' }}" placeholder="Optional" />
+      </label>
+      <label class="full-span">
         Time Zone
         <select name="timezone">
           <option value="">Select a time zone</option>

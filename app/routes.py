@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import importlib.util
+from zoneinfo import ZoneInfo
 
 from flask import (
     Blueprint,
@@ -24,6 +25,7 @@ from app.models import (
     ModMeal,
     OutletInspection,
     RoomInspection,
+    ReportComment,
     Shift,
     User,
 )
@@ -40,6 +42,19 @@ def _get_weasyprint():
     return HTML
 
 
+def _format_datetime_for_user(value, user):
+    if value is None:
+        return "-"
+    timezone_name = user.timezone or "UTC"
+    try:
+        tzinfo = ZoneInfo(timezone_name)
+    except Exception:
+        tzinfo = ZoneInfo("UTC")
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(tzinfo).strftime("%b %d, %Y %I:%M %p %Z")
+
+
 @auth_bp.route("/", methods=["GET"])
 def index():
     if current_user.is_authenticated:
@@ -51,6 +66,7 @@ def index():
 def register():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
+        job_title = request.form.get("job_title", "").strip() or None
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         if not name or not email or not password:
@@ -61,6 +77,7 @@ def register():
             return redirect(url_for("auth.register"))
         user = User(
             name=name,
+            job_title=job_title,
             email=email,
             password_hash=generate_password_hash(password),
         )
@@ -97,7 +114,17 @@ def logout():
 def dashboard():
     open_shift = Shift.query.filter_by(mod_id=current_user.id, status="open").first()
     closed_shifts = Shift.query.filter_by(status="closed").order_by(Shift.created_at.desc()).all()
-    return render_template("dashboard.html", open_shift=open_shift, closed_shifts=closed_shifts)
+    created_at_display = (
+        _format_datetime_for_user(open_shift.created_at, current_user)
+        if open_shift
+        else None
+    )
+    return render_template(
+        "dashboard.html",
+        open_shift=open_shift,
+        closed_shifts=closed_shifts,
+        created_at_display=created_at_display,
+    )
 
 
 @mod_bp.route("/shift/new", methods=["GET", "POST"])
@@ -145,7 +172,12 @@ def shift_detail(shift_id):
     shift = Shift.query.get_or_404(shift_id)
     if shift.mod_id != current_user.id:
         abort(403)
-    return render_template("shift_detail.html", shift=shift)
+    created_at_display = _format_datetime_for_user(shift.created_at, current_user)
+    return render_template(
+        "shift_detail.html",
+        shift=shift,
+        created_at_display=created_at_display,
+    )
 
 
 @mod_bp.route("/shift/<int:shift_id>/save-progress", methods=["POST"])
@@ -222,6 +254,18 @@ def close_shift(shift_id):
     shift.status = "closed"
     db.session.commit()
     return redirect(url_for("mod.report", shift_id=shift.id))
+
+
+@mod_bp.route("/shift/<int:shift_id>/delete", methods=["POST"])
+@login_required
+def delete_shift(shift_id):
+    shift = Shift.query.get_or_404(shift_id)
+    if shift.mod_id != current_user.id:
+        abort(403)
+    db.session.delete(shift)
+    db.session.commit()
+    flash("Shift deleted.", "success")
+    return redirect(url_for("mod.dashboard"))
 
 
 @mod_bp.route("/shift/<int:shift_id>/incident", methods=["POST"])
@@ -355,7 +399,20 @@ def report(shift_id):
     shift = Shift.query.get_or_404(shift_id)
     if shift.status == "open" and shift.mod_id != current_user.id:
         abort(403)
-    return render_template("report.html", shift=shift)
+    created_at_display = _format_datetime_for_user(shift.created_at, current_user)
+    comments = [
+        {
+            "comment": comment,
+            "created_at_display": _format_datetime_for_user(comment.created_at, current_user),
+        }
+        for comment in shift.comments
+    ]
+    return render_template(
+        "report.html",
+        shift=shift,
+        created_at_display=created_at_display,
+        comments=comments,
+    )
 
 
 @mod_bp.route("/report/<int:shift_id>/pdf")
@@ -371,7 +428,14 @@ def report_pdf(shift_id):
             "error",
         )
         return redirect(url_for("mod.report", shift_id=shift.id))
-    rendered_html = render_template("report.html", shift=shift, pdf_mode=True)
+    created_at_display = _format_datetime_for_user(shift.created_at, current_user)
+    rendered_html = render_template(
+        "report.html",
+        shift=shift,
+        created_at_display=created_at_display,
+        comments=[],
+        pdf_mode=True,
+    )
     pdf_bytes = html_renderer(string=rendered_html, base_url=current_app.root_path).write_pdf()
     response = make_response(pdf_bytes)
     response.headers["Content-Type"] = "application/pdf"
@@ -393,8 +457,26 @@ def settings():
     ]
     if request.method == "POST":
         timezone = request.form.get("timezone") or None
+        job_title = request.form.get("job_title", "").strip() or None
         current_user.timezone = timezone
+        current_user.job_title = job_title
         db.session.commit()
         flash("Settings updated.", "success")
         return redirect(url_for("mod.settings"))
     return render_template("settings.html", timezones=timezones)
+
+
+@mod_bp.route("/report/<int:shift_id>/comment", methods=["POST"])
+@login_required
+def add_report_comment(shift_id):
+    shift = Shift.query.get_or_404(shift_id)
+    if shift.status != "closed":
+        abort(400)
+    body = request.form.get("comment", "").strip()
+    if not body:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("mod.report", shift_id=shift.id))
+    comment = ReportComment(shift_id=shift.id, author_id=current_user.id, body=body)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for("mod.report", shift_id=shift.id))

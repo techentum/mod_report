@@ -9,13 +9,27 @@
       {% if not pdf_mode|default(false) %}
         <div class="report-actions">
           <a class="button" href="{{ url_for('mod.report_pdf', shift_id=shift.id) }}">Download PDF</a>
+          {% if shift.mod_id == current_user.id %}
+            <form method="post" action="{{ url_for('mod.delete_shift', shift_id=shift.id) }}">
+              <button type="submit" class="button button-danger" onclick="return confirm('Delete this shift report? This cannot be undone.');">
+                Delete Shift
+              </button>
+            </form>
+          {% endif %}
         </div>
       {% endif %}
     </div>
     <div class="grid three">
       <div>
-        <p><strong>MOD:</strong> {{ shift.mod.name }}</p>
+        <p>
+          <strong>MOD:</strong>
+          <span class="name-with-title">{{ shift.mod.name }}</span>
+          {% if shift.mod.job_title %}
+            <span class="job-title">{{ shift.mod.job_title }}</span>
+          {% endif %}
+        </p>
         <p><strong>Status:</strong> {{ shift.status|capitalize }}</p>
+        <p><strong>Created:</strong> {{ created_at_display }}</p>
       </div>
       <div>
         <p><strong>Occupancy:</strong> {{ shift.occupancy or "-" }}%</p>
@@ -182,4 +196,40 @@
       <p><strong>Pass Down Notes:</strong> {{ shift.pass_down_notes or "None" }}</p>
     </section>
   </div>
+
+  {% if shift.status == "closed" and not pdf_mode|default(false) %}
+    <section class="card">
+      <div class="card-header">
+        <h3>Report Comments</h3>
+        <span class="muted">Share follow-ups for this completed shift.</span>
+      </div>
+      <form method="post" action="{{ url_for('mod.add_report_comment', shift_id=shift.id) }}" class="form-grid">
+        <label class="full-span">
+          Add a comment
+          <textarea name="comment" required></textarea>
+        </label>
+        <button type="submit" class="primary">Post Comment</button>
+      </form>
+      {% if comments %}
+        <ul class="comment-thread">
+          {% for entry in comments %}
+            <li class="comment-card">
+              <div class="comment-meta">
+                <div class="comment-author">
+                  <span class="name-with-title">{{ entry.comment.author.name }}</span>
+                  {% if entry.comment.author.job_title %}
+                    <span class="job-title">{{ entry.comment.author.job_title }}</span>
+                  {% endif %}
+                </div>
+                <span class="muted">{{ entry.created_at_display }}</span>
+              </div>
+              <p>{{ entry.comment.body }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No comments yet. Be the first to add a follow-up.</p>
+      {% endif %}
+    </section>
+  {% endif %}
 {% endblock %}

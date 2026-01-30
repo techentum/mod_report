@@ -3,7 +3,14 @@
   <section class="card">
     <div class="card-header">
       <h2>Active Shift • {{ shift.date.strftime('%B %d, %Y') }} ({{ shift.schedule }})</h2>
-      <span class="pill">Open</span>
+      <div class="header-actions">
+        <span class="pill">Open</span>
+        <form method="post" action="{{ url_for('mod.delete_shift', shift_id=shift.id) }}">
+          <button type="submit" class="button button-danger" onclick="return confirm('Delete this shift? This cannot be undone.');">
+            Delete Shift
+          </button>
+        </form>
+      </div>
     </div>
     <div class="grid three">
       <div>
@@ -12,8 +19,14 @@
         <p><strong>Departures:</strong> {{ shift.departures or "-" }}</p>
       </div>
       <div>
-        <p><strong>MOD:</strong> {{ shift.mod.name }}</p>
-        <p><strong>Created:</strong> {{ shift.created_at.strftime('%I:%M %p') }}</p>
+        <p>
+          <strong>MOD:</strong>
+          <span class="name-with-title">{{ shift.mod.name }}</span>
+          {% if shift.mod.job_title %}
+            <span class="job-title">{{ shift.mod.job_title }}</span>
+          {% endif %}
+        </p>
+        <p><strong>Created:</strong> {{ created_at_display }}</p>
       </div>
       <div>
         <p><strong>GM/AGM:</strong> {{ shift.gm_agm or "-" }}</p>
