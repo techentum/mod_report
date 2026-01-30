@@ -217,6 +217,9 @@
               <div class="comment-meta">
                 <div class="comment-author">
                   <span class="name-with-title">{{ entry.comment.author.name }}</span>
+                  {% if entry.comment.author.id == shift.mod_id %}
+                    <span class="author-tag">MOD</span>
+                  {% endif %}
                   {% if entry.comment.author.job_title %}
                     <span class="job-title">{{ entry.comment.author.job_title }}</span>
                   {% endif %}
