@@ -173,6 +173,13 @@ def logout():
 @login_required
 def dashboard():
     open_shift = Shift.query.filter_by(mod_id=current_user.id, status="open").first()
+    editable_open_shifts = (
+        Shift.query.filter_by(status="open")
+        .filter(Shift.editors.any(id=current_user.id))
+        .filter(Shift.mod_id != current_user.id)
+        .order_by(Shift.created_at.desc())
+        .all()
+    )
     admin_open_shifts = []
     if _is_admin(current_user):
         admin_open_shifts = (
@@ -189,6 +196,7 @@ def dashboard():
     return render_template(
         "dashboard.html",
         open_shift=open_shift,
+        editable_open_shifts=editable_open_shifts,
         admin_open_shifts=admin_open_shifts,
         closed_shifts=closed_shifts,
         created_at_display=created_at_display,
