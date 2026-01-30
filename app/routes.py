@@ -148,6 +148,58 @@ def shift_detail(shift_id):
     return render_template("shift_detail.html", shift=shift)
 
 
+@mod_bp.route("/shift/<int:shift_id>/save-progress", methods=["POST"])
+@login_required
+def save_shift_progress(shift_id):
+    shift = Shift.query.get_or_404(shift_id)
+    if shift.mod_id != current_user.id:
+        abort(403)
+
+    def update_if_present(field_name, transformer=None):
+        if field_name not in request.form:
+            return
+        raw_value = request.form.get(field_name)
+        if raw_value == "":
+            setattr(shift, field_name, None)
+            return
+        if transformer:
+            setattr(shift, field_name, transformer(raw_value))
+            return
+        setattr(shift, field_name, raw_value)
+
+    update_if_present("gm_agm")
+    update_if_present("housekeeping")
+    update_if_present("food_beverage")
+    update_if_present("sales")
+    update_if_present("aquatics")
+    update_if_present("retail_attractions")
+    update_if_present("kids_entertainment")
+    update_if_present("guest_services")
+    update_if_present("hr")
+    update_if_present("finance")
+    update_if_present("engineering")
+    update_if_present("it")
+
+    update_if_present("nps_score", lambda value: int(value))
+    update_if_present("nps_rank", lambda value: int(value))
+    update_if_present("quality_assurance")
+    update_if_present("suggestions")
+    update_if_present("shift_notes")
+    update_if_present(
+        "pass_down_time", lambda value: datetime.strptime(value, "%H:%M").time()
+    )
+    update_if_present("pass_down_next_mod")
+    update_if_present("pass_down_notes")
+
+    db.session.commit()
+
+    if request.headers.get("X-Requested-With") == "fetch":
+        return ("", 204)
+
+    flash("Draft saved.", "success")
+    return redirect(url_for("mod.shift_detail", shift_id=shift.id))
+
+
 @mod_bp.route("/shift/<int:shift_id>/close", methods=["POST"])
 @login_required
 def close_shift(shift_id):
@@ -327,3 +379,22 @@ def report_pdf(shift_id):
         f"attachment; filename=mod-report-{shift.date.isoformat()}.pdf"
     )
     return response
+
+
+@mod_bp.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    timezones = [
+        "America/Los_Angeles",
+        "America/Denver",
+        "America/Chicago",
+        "America/New_York",
+        "UTC",
+    ]
+    if request.method == "POST":
+        timezone = request.form.get("timezone") or None
+        current_user.timezone = timezone
+        db.session.commit()
+        flash("Settings updated.", "success")
+        return redirect(url_for("mod.settings"))
+    return render_template("settings.html", timezones=timezones)
