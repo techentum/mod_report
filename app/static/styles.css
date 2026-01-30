@@ -1,4 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@font-face {
+  font-family: "Montserrat";
+  src: url("fonts/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("fonts/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
 
 * {
   box-sizing: border-box;
@@ -6,7 +20,7 @@
 
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", "Inter", sans-serif;
   background: #f4f6fb;
   color: #1b1f2a;
 }
@@ -29,6 +43,27 @@ a:hover {
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-logo {
+  width: 80px;
+  height: auto;
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .brand h1 {
@@ -76,6 +111,19 @@ nav a {
   align-items: center;
   gap: 16px;
   margin-bottom: 12px;
+}
+
+.card-header .heading-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
 .narrow {
@@ -217,6 +265,31 @@ textarea {
   color: #a16207;
 }
 
+.pdf {
+  background: #fff;
+}
+
+.pdf .site-header {
+  background: #fff;
+  color: #1b1f2a;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pdf .brand-logo {
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+
+.pdf .content {
+  max-width: none;
+  padding: 24px 32px 40px;
+}
+
+.pdf .card {
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+
 @media (max-width: 768px) {
   .content {
     padding: 24px 20px 40px;
@@ -224,6 +297,15 @@ textarea {
 
   .site-header {
     padding: 20px;
+  }
+
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .brand-logo {
+    width: 70px;
   }
 
   .table-row {

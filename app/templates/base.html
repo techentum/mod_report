@@ -4,22 +4,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ title or "MOD Portal" }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    {% set is_pdf = pdf_mode|default(false) %}
+    <link rel="stylesheet" href="{{ 'static/styles.css' if is_pdf else url_for('static', filename='styles.css') }}" />
   </head>
-  <body>
+  <body class="{{ 'pdf' if is_pdf else '' }}">
     <header class="site-header">
       <div class="brand">
-        <span class="badge">Great Wolf Lodge • Manteca</span>
-        <h1>MOD Shift Portal</h1>
+        <img
+          class="brand-logo"
+          src="{{ 'static/logos/Great-Wolf-Lodge-Logo.png' if is_pdf else url_for('static', filename='logos/Great-Wolf-Lodge-Logo.png') }}"
+          alt="Great Wolf Lodge logo"
+        />
+        <div class="brand-text">
+          <span class="badge">Great Wolf Lodge • Manteca</span>
+          <h1>MOD Shift Portal</h1>
+        </div>
       </div>
-      <nav>
-        {% if current_user.is_authenticated %}
-          <a href="{{ url_for('mod.dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('auth.logout') }}">Logout</a>
-        {% else %}
-          <a href="{{ url_for('auth.login') }}">Login</a>
-        {% endif %}
-      </nav>
+      {% if not is_pdf %}
+        <nav>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('mod.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+          {% endif %}
+        </nav>
+      {% endif %}
     </header>
     <main class="content">
       {% with messages = get_flashed_messages(with_categories=true) %}

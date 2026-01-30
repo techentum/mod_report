@@ -2,8 +2,15 @@
 {% block content %}
   <section class="card">
     <div class="card-header">
-      <h2>MOD Report • {{ shift.date.strftime('%B %d, %Y') }}</h2>
-      <span class="pill">{{ shift.schedule }}</span>
+      <div class="heading-stack">
+        <h2>MOD Report • {{ shift.date.strftime('%B %d, %Y') }}</h2>
+        <span class="pill">{{ shift.schedule }}</span>
+      </div>
+      {% if not pdf_mode|default(false) %}
+        <div class="report-actions">
+          <a class="button" href="{{ url_for('mod.report_pdf', shift_id=shift.id) }}">Download PDF</a>
+        </div>
+      {% endif %}
     </div>
     <div class="grid three">
       <div>
