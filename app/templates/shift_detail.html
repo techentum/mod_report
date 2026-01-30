@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Active Shift • {{ shift.date.strftime('%B %d, %Y') }} ({{ shift.schedule }})</h2>
+      <span class="pill">Open</span>
+    </div>
+    <div class="grid three">
+      <div>
+        <p><strong>Occupancy:</strong> {{ shift.occupancy or "-" }}%</p>
+        <p><strong>Arrivals:</strong> {{ shift.arrivals or "-" }}</p>
+        <p><strong>Departures:</strong> {{ shift.departures or "-" }}</p>
+      </div>
+      <div>
+        <p><strong>MOD:</strong> {{ shift.mod.name }}</p>
+        <p><strong>Created:</strong> {{ shift.created_at.strftime('%I:%M %p') }}</p>
+      </div>
+      <div>
+        <p><strong>GM/AGM:</strong> {{ shift.gm_agm or "-" }}</p>
+        <p><strong>Housekeeping:</strong> {{ shift.housekeeping or "-" }}</p>
+        <p><strong>Food &amp; Beverage:</strong> {{ shift.food_beverage or "-" }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Incidents</h3>
+    <form method="post" action="{{ url_for('mod.add_incident', shift_id=shift.id) }}" class="form-grid">
+      <label>Incident Code <input type="text" name="code" required /></label>
+      <label>Time <input type="time" name="incident_time" required /></label>
+      <label>Location <input type="text" name="location" required /></label>
+      <label class="full-span">Notes <textarea name="notes"></textarea></label>
+      <button type="submit" class="primary">Add Incident</button>
+    </form>
+    {% if shift.incidents %}
+      <ul class="list">
+        {% for incident in shift.incidents %}
+          <li>
+            <strong>{{ incident.code }}</strong> at {{ incident.incident_time.strftime('%I:%M %p') }} — {{ incident.location }}
+            <div class="muted">{{ incident.notes or "No notes" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No incidents reported yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Downtime</h3>
+    <form method="post" action="{{ url_for('mod.add_downtime', shift_id=shift.id) }}" class="form-grid">
+      <label>Attraction/Outlet <input type="text" name="outlet" required /></label>
+      <label>Start Time <input type="time" name="start_time" required /></label>
+      <label>End Time <input type="time" name="end_time" /></label>
+      <label class="full-span">Reason <textarea name="reason" required></textarea></label>
+      <button type="submit" class="primary">Add Downtime</button>
+    </form>
+    {% if shift.downtimes %}
+      <ul class="list">
+        {% for downtime in shift.downtimes %}
+          <li>
+            <strong>{{ downtime.outlet }}</strong> — {{ downtime.start_time.strftime('%I:%M %p') }}
+            {% if downtime.end_time %}
+              to {{ downtime.end_time.strftime('%I:%M %p') }}
+            {% else %}
+              (ongoing)
+            {% endif %}
+            <div class="muted">{{ downtime.reason }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No downtime reported.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Guest Opportunities</h3>
+    <form method="post" action="{{ url_for('mod.add_guest_opportunity', shift_id=shift.id) }}" class="form-grid">
+      <label>Last Name <input type="text" name="last_name" required /></label>
+      <label>Room <input type="text" name="room" required /></label>
+      <label class="full-span">Description <textarea name="description" required></textarea></label>
+      <label class="full-span">Compensation Provided <textarea name="compensation"></textarea></label>
+      <button type="submit" class="primary">Add Opportunity</button>
+    </form>
+    {% if shift.guest_opportunities %}
+      <ul class="list">
+        {% for opportunity in shift.guest_opportunities %}
+          <li>
+            <strong>{{ opportunity.last_name }}</strong> • Room {{ opportunity.room }}
+            <div>{{ opportunity.description }}</div>
+            <div class="muted">{{ opportunity.compensation or "No compensation listed" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No guest opportunities noted.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Room Inspections</h3>
+    <form method="post" action="{{ url_for('mod.add_room_inspection', shift_id=shift.id) }}" class="form-grid">
+      <label>Room Number <input type="text" name="room_number" required /></label>
+      <label>Room Type <input type="text" name="room_type" required /></label>
+      <label class="full-span">Successes <textarea name="successes"></textarea></label>
+      <label class="full-span">Opportunities <textarea name="opportunities"></textarea></label>
+      <button type="submit" class="primary">Add Room Inspection</button>
+    </form>
+    {% if shift.room_inspections %}
+      <ul class="list">
+        {% for inspection in shift.room_inspections %}
+          <li>
+            <strong>Room {{ inspection.room_number }}</strong> ({{ inspection.room_type }})
+            <div class="muted">Successes: {{ inspection.successes or "None" }}</div>
+            <div class="muted">Opportunities: {{ inspection.opportunities or "None" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No room inspections recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Outlet Inspections</h3>
+    <form method="post" action="{{ url_for('mod.add_outlet_inspection', shift_id=shift.id) }}" class="form-grid">
+      <label>Outlet <input type="text" name="outlet" required /></label>
+      <label>Time <input type="time" name="inspection_time" required /></label>
+      <label class="full-span">Successes <textarea name="successes"></textarea></label>
+      <label class="full-span">Opportunities <textarea name="opportunities"></textarea></label>
+      <button type="submit" class="primary">Add Outlet Inspection</button>
+    </form>
+    {% if shift.outlet_inspections %}
+      <ul class="list">
+        {% for inspection in shift.outlet_inspections %}
+          <li>
+            <strong>{{ inspection.outlet }}</strong> at {{ inspection.inspection_time.strftime('%I:%M %p') }}
+            <div class="muted">Successes: {{ inspection.successes or "None" }}</div>
+            <div class="muted">Opportunities: {{ inspection.opportunities or "None" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No outlet inspections recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>High Paws</h3>
+    <form method="post" action="{{ url_for('mod.add_high_paw', shift_id=shift.id) }}" class="form-grid">
+      <label>Pack Member(s) <input type="text" name="pack_members" required /></label>
+      <label>Department <input type="text" name="department" required /></label>
+      <label class="full-span">Description <textarea name="description" required></textarea></label>
+      <button type="submit" class="primary">Add High Paw</button>
+    </form>
+    {% if shift.high_paws %}
+      <ul class="list">
+        {% for high_paw in shift.high_paws %}
+          <li>
+            <strong>{{ high_paw.pack_members }}</strong> • {{ high_paw.department }}
+            <div class="muted">{{ high_paw.description }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No High Paws recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>MOD Meals</h3>
+    <form method="post" action="{{ url_for('mod.add_mod_meal', shift_id=shift.id) }}" class="form-grid">
+      <label>Outlet <input type="text" name="outlet" required /></label>
+      <label>Menu Item <input type="text" name="menu_item" required /></label>
+      <label class="full-span">Feedback <textarea name="feedback"></textarea></label>
+      <button type="submit" class="primary">Add MOD Meal</button>
+    </form>
+    {% if shift.mod_meals %}
+      <ul class="list">
+        {% for meal in shift.mod_meals %}
+          <li>
+            <strong>{{ meal.outlet }}</strong> • {{ meal.menu_item }}
+            <div class="muted">{{ meal.feedback or "No feedback" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No MOD meals recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Close Shift</h3>
+    <form method="post" action="{{ url_for('mod.close_shift', shift_id=shift.id) }}" class="form-grid">
+      <label>NPS Score <input type="number" name="nps_score" min="0" max="100" /></label>
+      <label>NPS Rank <input type="number" name="nps_rank" min="1" /></label>
+      <label class="full-span">Quality Assurance <textarea name="quality_assurance"></textarea></label>
+      <label class="full-span">Suggestions <textarea name="suggestions"></textarea></label>
+      <label class="full-span">Shift Notes <textarea name="shift_notes"></textarea></label>
+      <label>Pass Down Time <input type="time" name="pass_down_time" /></label>
+      <label>Next MOD <input type="text" name="pass_down_next_mod" /></label>
+      <label class="full-span">Pass Down Notes <textarea name="pass_down_notes"></textarea></label>
+      <button type="submit" class="primary full-span">Close Shift &amp; Generate Report</button>
+    </form>
+  </section>
+{% endblock %}

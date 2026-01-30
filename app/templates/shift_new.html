@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <h2>Start New MOD Shift</h2>
+    <form method="post" class="form-grid">
+      <label>
+        Date
+        <input type="date" name="date" required />
+      </label>
+      <label>
+        Schedule
+        <select name="schedule" required>
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+          <option value="Third Shift">Third Shift</option>
+        </select>
+      </label>
+      <label>
+        Occupancy %
+        <input type="number" name="occupancy" min="0" max="100" />
+      </label>
+      <label>
+        Arrivals
+        <input type="number" name="arrivals" min="0" />
+      </label>
+      <label>
+        Departures
+        <input type="number" name="departures" min="0" />
+      </label>
+      <div class="full-span">
+        <h3>Leaders Present</h3>
+      </div>
+      <label>GM/AGM <input type="text" name="gm_agm" /></label>
+      <label>Housekeeping <input type="text" name="housekeeping" /></label>
+      <label>Food &amp; Beverage <input type="text" name="food_beverage" /></label>
+      <label>Sales <input type="text" name="sales" /></label>
+      <label>Aquatics <input type="text" name="aquatics" /></label>
+      <label>Retail/Attractions <input type="text" name="retail_attractions" /></label>
+      <label>Kids Entertainment <input type="text" name="kids_entertainment" /></label>
+      <label>Guest Services <input type="text" name="guest_services" /></label>
+      <label>HR <input type="text" name="hr" /></label>
+      <label>Finance <input type="text" name="finance" /></label>
+      <label>Engineering <input type="text" name="engineering" /></label>
+      <label>IT <input type="text" name="it" /></label>
+      <button type="submit" class="primary full-span">Create Shift</button>
+    </form>
+  </section>
+{% endblock %}

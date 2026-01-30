@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Dashboard</h2>
+      <a class="primary" href="{{ url_for('mod.new_shift') }}">Start New Shift</a>
+    </div>
+    <p class="muted">Track your open shift and review past MOD reports from the team.</p>
+  </section>
+
+  {% if open_shift %}
+    <section class="card highlight">
+      <h3>Your Open Shift</h3>
+      <div class="grid two">
+        <div>
+          <p><strong>Date:</strong> {{ open_shift.date.strftime('%B %d, %Y') }}</p>
+          <p><strong>Schedule:</strong> {{ open_shift.schedule }}</p>
+          <p><strong>Occupancy:</strong> {{ open_shift.occupancy or "-" }}%</p>
+        </div>
+        <div>
+          <p><strong>Arrivals:</strong> {{ open_shift.arrivals or "-" }}</p>
+          <p><strong>Departures:</strong> {{ open_shift.departures or "-" }}</p>
+          <p><strong>Created by:</strong> {{ open_shift.mod.name }}</p>
+        </div>
+      </div>
+      <a class="button" href="{{ url_for('mod.shift_detail', shift_id=open_shift.id) }}">Continue Shift</a>
+    </section>
+  {% else %}
+    <section class="card">
+      <p class="muted">You do not have an open shift right now. Start a new shift to begin reporting.</p>
+    </section>
+  {% endif %}
+
+  <section class="card">
+    <h3>Past Shift Reports</h3>
+    {% if closed_shifts %}
+      <div class="table">
+        <div class="table-row header">
+          <span>Date</span>
+          <span>MOD</span>
+          <span>Schedule</span>
+          <span>Occupancy</span>
+          <span>Report</span>
+        </div>
+        {% for shift in closed_shifts %}
+          <div class="table-row">
+            <span>{{ shift.date.strftime('%B %d, %Y') }}</span>
+            <span>{{ shift.mod.name }}</span>
+            <span>{{ shift.schedule }}</span>
+            <span>{{ shift.occupancy or "-" }}%</span>
+            <span><a href="{{ url_for('mod.report', shift_id=shift.id) }}">View report</a></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No closed shift reports yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}
