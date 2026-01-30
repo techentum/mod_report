@@ -342,6 +342,19 @@ textarea {
   gap: 6px;
 }
 
+.author-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .muted {
   color: var(--brand-muted);
 }
