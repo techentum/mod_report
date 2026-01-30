@@ -24,6 +24,33 @@
   </section>
 
   <section class="card">
+    <div class="card-header">
+      <h3>Leaders Present</h3>
+      <span class="muted">Updates save automatically.</span>
+    </div>
+    <form
+      method="post"
+      action="{{ url_for('mod.save_shift_progress', shift_id=shift.id) }}"
+      class="form-grid autosave-form"
+      data-save-url="{{ url_for('mod.save_shift_progress', shift_id=shift.id) }}"
+    >
+      <label>GM/AGM <input type="text" name="gm_agm" value="{{ shift.gm_agm or '' }}" /></label>
+      <label>Housekeeping <input type="text" name="housekeeping" value="{{ shift.housekeeping or '' }}" /></label>
+      <label>Food &amp; Beverage <input type="text" name="food_beverage" value="{{ shift.food_beverage or '' }}" /></label>
+      <label>Sales <input type="text" name="sales" value="{{ shift.sales or '' }}" /></label>
+      <label>Aquatics <input type="text" name="aquatics" value="{{ shift.aquatics or '' }}" /></label>
+      <label>Retail/Attractions <input type="text" name="retail_attractions" value="{{ shift.retail_attractions or '' }}" /></label>
+      <label>Kids Entertainment <input type="text" name="kids_entertainment" value="{{ shift.kids_entertainment or '' }}" /></label>
+      <label>Guest Services <input type="text" name="guest_services" value="{{ shift.guest_services or '' }}" /></label>
+      <label>HR <input type="text" name="hr" value="{{ shift.hr or '' }}" /></label>
+      <label>Finance <input type="text" name="finance" value="{{ shift.finance or '' }}" /></label>
+      <label>Engineering <input type="text" name="engineering" value="{{ shift.engineering or '' }}" /></label>
+      <label>IT <input type="text" name="it" value="{{ shift.it or '' }}" /></label>
+      <button type="submit" class="primary full-span">Save Leaders</button>
+    </form>
+  </section>
+
+  <section class="card">
     <h3>Incidents</h3>
     <form method="post" action="{{ url_for('mod.add_incident', shift_id=shift.id) }}" class="form-grid">
       <label>Incident Code <input type="text" name="code" required /></label>
@@ -192,16 +219,31 @@
 
   <section class="card">
     <h3>Close Shift</h3>
-    <form method="post" action="{{ url_for('mod.close_shift', shift_id=shift.id) }}" class="form-grid">
-      <label>NPS Score <input type="number" name="nps_score" min="0" max="100" /></label>
-      <label>NPS Rank <input type="number" name="nps_rank" min="1" /></label>
-      <label class="full-span">Quality Assurance <textarea name="quality_assurance"></textarea></label>
-      <label class="full-span">Suggestions <textarea name="suggestions"></textarea></label>
-      <label class="full-span">Shift Notes <textarea name="shift_notes"></textarea></label>
-      <label>Pass Down Time <input type="time" name="pass_down_time" /></label>
-      <label>Next MOD <input type="text" name="pass_down_next_mod" /></label>
-      <label class="full-span">Pass Down Notes <textarea name="pass_down_notes"></textarea></label>
+    <p class="muted">Notes save as you type so you can return later.</p>
+    <form
+      method="post"
+      action="{{ url_for('mod.close_shift', shift_id=shift.id) }}"
+      class="form-grid autosave-form"
+      data-save-url="{{ url_for('mod.save_shift_progress', shift_id=shift.id) }}"
+    >
+      <label>NPS Score <input type="number" name="nps_score" min="0" max="100" value="{{ shift.nps_score if shift.nps_score is not none else '' }}" /></label>
+      <label>NPS Rank <input type="number" name="nps_rank" min="1" value="{{ shift.nps_rank if shift.nps_rank is not none else '' }}" /></label>
+      <label class="full-span">Quality Assurance <textarea name="quality_assurance">{{ shift.quality_assurance or '' }}</textarea></label>
+      <label class="full-span">Suggestions <textarea name="suggestions">{{ shift.suggestions or '' }}</textarea></label>
+      <label class="full-span">Shift Notes <textarea name="shift_notes">{{ shift.shift_notes or '' }}</textarea></label>
+      <label>Pass Down Time <input type="time" name="pass_down_time" value="{{ shift.pass_down_time.strftime('%H:%M') if shift.pass_down_time else '' }}" /></label>
+      <label>Next MOD <input type="text" name="pass_down_next_mod" value="{{ shift.pass_down_next_mod or '' }}" /></label>
+      <label class="full-span">Pass Down Notes <textarea name="pass_down_notes">{{ shift.pass_down_notes or '' }}</textarea></label>
+      <button
+        type="submit"
+        class="button full-span"
+        formaction="{{ url_for('mod.save_shift_progress', shift_id=shift.id) }}"
+      >
+        Save Draft
+      </button>
       <button type="submit" class="primary full-span">Close Shift &amp; Generate Report</button>
     </form>
   </section>
+
+  <script src="{{ url_for('static', filename='shift_detail.js') }}"></script>
 {% endblock %}

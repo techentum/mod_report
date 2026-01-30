@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Settings</h2>
+    </div>
+    <form method="post" class="form-grid">
+      <label class="full-span">
+        Time Zone
+        <select name="timezone">
+          <option value="">Select a time zone</option>
+          {% for timezone in timezones %}
+            <option value="{{ timezone }}" {% if current_user.timezone == timezone %}selected{% endif %}>
+              {{ timezone }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="primary full-span">Save Settings</button>
+    </form>
+  </section>
+{% endblock %}
