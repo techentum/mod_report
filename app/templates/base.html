@@ -24,6 +24,13 @@
         <nav>
           {% if current_user.is_authenticated %}
             <a href="{{ url_for('mod.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('mod.search_reports') }}">Reports Search</a>
+            <a href="{{ url_for('mod.search_incidents') }}">Incidents Search</a>
+            <a href="{{ url_for('mod.search_downtime') }}">Downtime Search</a>
+            <a href="{{ url_for('mod.search_guest_opportunities') }}">Guest Opportunities</a>
+            {% if current_user.is_admin %}
+              <a href="{{ url_for('mod.admin_users') }}">Admin Users</a>
+            {% endif %}
             <a href="{{ url_for('mod.settings') }}">Settings</a>
             <a href="{{ url_for('auth.logout') }}">Logout</a>
           {% else %}

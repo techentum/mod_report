@@ -307,6 +307,11 @@ textarea {
   gap: 12px;
 }
 
+.list.compact {
+  margin-top: 8px;
+  gap: 8px;
+}
+
 .list li {
   padding: 12px 16px;
   background: #f3f5fa;
@@ -340,6 +345,22 @@ textarea {
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.checkbox-grid {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f3f5fa;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .author-tag {

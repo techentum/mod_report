@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>User Administration</h2>
+      <a class="primary" href="{{ url_for('mod.admin_user_new') }}">Add User</a>
+    </div>
+    <p class="muted">Manage registered users, roles, and profile information.</p>
+  </section>
+
+  <section class="card">
+    {% if users %}
+      <div class="table">
+        <div class="table-row header">
+          <span>Name</span>
+          <span>Email</span>
+          <span>Job Title</span>
+          <span>Role</span>
+          <span>Timezone</span>
+          <span>Actions</span>
+        </div>
+        {% for user in users %}
+          <div class="table-row">
+            <span>
+              <span class="name-with-title">{{ user.name }}</span>
+            </span>
+            <span>{{ user.email }}</span>
+            <span>{{ user.job_title or "-" }}</span>
+            <span>
+              {% if user.is_admin %}
+                <span class="pill">Admin</span>
+              {% else %}
+                <span class="muted">User</span>
+              {% endif %}
+            </span>
+            <span>{{ user.timezone or "-" }}</span>
+            <span>
+              <div class="button-row">
+                <a class="link-button" href="{{ url_for('mod.admin_user_edit', user_id=user.id) }}">Edit</a>
+                {% if user.id != current_user.id %}
+                  <form method="post" action="{{ url_for('mod.admin_user_delete', user_id=user.id) }}">
+                    <button type="submit" class="link-button" onclick="return confirm('Delete this user? This cannot be undone.');">
+                      Delete
+                    </button>
+                  </form>
+                {% else %}
+                  <span class="muted">Current</span>
+                {% endif %}
+              </div>
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No users found.</p>
+    {% endif %}
+  </section>
+{% endblock %}

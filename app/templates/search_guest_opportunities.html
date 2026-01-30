@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Guest Opportunities Search</h2>
+    </div>
+    <form method="get" class="form-grid">
+      <label>
+        Keyword
+        <input type="text" name="q" value="{{ query_params.get('q', '') }}" placeholder="Guest, room, details" />
+      </label>
+      <label>
+        MOD
+        <select name="mod_id">
+          <option value="">All MODs</option>
+          {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_mod_id == user.id %}selected{% endif %}>
+              {{ user.name }}{% if user.job_title %} • {{ user.job_title }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Start Date
+        <input type="date" name="start_date" value="{{ query_params.get('start_date', '') }}" />
+      </label>
+      <label>
+        End Date
+        <input type="date" name="end_date" value="{{ query_params.get('end_date', '') }}" />
+      </label>
+      <button type="submit" class="primary">Search</button>
+    </form>
+  </section>
+
+  <section class="card">
+    {% if results %}
+      <div class="table">
+        <div class="table-row header">
+          <span>Date</span>
+          <span>Guest</span>
+          <span>Room</span>
+          <span>Description</span>
+          <span>MOD</span>
+          <span>Report</span>
+        </div>
+        {% for opportunity in results %}
+          <div class="table-row">
+            <span>{{ opportunity.shift.date.strftime('%B %d, %Y') }}</span>
+            <span>{{ opportunity.last_name }}</span>
+            <span>{{ opportunity.room }}</span>
+            <span>{{ opportunity.description }}</span>
+            <span>{{ opportunity.shift.mod.name }}</span>
+            <span><a href="{{ url_for('mod.report', shift_id=opportunity.shift.id) }}">View</a></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No guest opportunities match this search yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}
