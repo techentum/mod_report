@@ -211,6 +211,10 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.leaders-grid {
+  gap: 8px 16px;
+}
+
 .full-span {
   grid-column: 1 / -1;
 }
