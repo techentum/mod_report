@@ -215,6 +215,10 @@ textarea {
   gap: 8px 16px;
 }
 
+.leaders-grid p{
+  margin: 5px
+}
+
 .full-span {
   grid-column: 1 / -1;
 }
