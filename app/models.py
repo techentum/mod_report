@@ -13,10 +13,12 @@ def load_user(user_id):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    job_title = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     timezone = db.Column(db.String(120), nullable=True)
     shifts = db.relationship("Shift", backref="mod", lazy=True)
+    comments = db.relationship("ReportComment", backref="author", lazy=True)
 
 
 class Shift(db.Model):
@@ -67,6 +69,21 @@ class Shift(db.Model):
     )
     high_paws = db.relationship("HighPaw", backref="shift", lazy=True, cascade="all, delete-orphan")
     mod_meals = db.relationship("ModMeal", backref="shift", lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship(
+        "ReportComment",
+        backref="shift",
+        lazy=True,
+        cascade="all, delete-orphan",
+        order_by="ReportComment.created_at.asc()",
+    )
+
+
+class ReportComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    shift_id = db.Column(db.Integer, db.ForeignKey("shift.id"), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Incident(db.Model):
