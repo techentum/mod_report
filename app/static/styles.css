@@ -14,6 +14,16 @@
   font-display: swap;
 }
 
+:root {
+  --brand-primary: #182e43;
+  --brand-secondary: #8a0d15;
+  --brand-ink: #111827;
+  --brand-surface: #f2f4f8;
+  --brand-surface-strong: #ffffff;
+  --brand-muted: #4b5563;
+  --brand-outline: #d9dee7;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -21,12 +31,12 @@
 body {
   margin: 0;
   font-family: "Montserrat", "Inter", sans-serif;
-  background: #f4f6fb;
-  color: #1b1f2a;
+  background: var(--brand-surface);
+  color: var(--brand-ink);
 }
 
 a {
-  color: #2b5cff;
+  color: var(--brand-secondary);
   text-decoration: none;
 }
 
@@ -35,7 +45,7 @@ a:hover {
 }
 
 .site-header {
-  background: linear-gradient(120deg, #1b2a4e, #233b78);
+  background: linear-gradient(120deg, var(--brand-primary), #203a55);
   color: #fff;
   padding: 24px 40px;
   display: flex;
@@ -54,10 +64,10 @@ a:hover {
 .brand-logo {
   width: 80px;
   height: auto;
-  border-radius: 12px;
-  background: #fff;
-  padding: 8px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .brand-text {
@@ -89,12 +99,12 @@ nav a {
 
 .content {
   padding: 32px 40px 60px;
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 .card {
-  background: #fff;
+  background: var(--brand-surface-strong);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 24px;
@@ -102,7 +112,7 @@ nav a {
 }
 
 .card.highlight {
-  border-left: 6px solid #2b5cff;
+  border-left: 6px solid var(--brand-secondary);
 }
 
 .card-header {
@@ -163,7 +173,7 @@ textarea {
 
 .primary,
 .button {
-  background: #2b5cff;
+  background: var(--brand-primary);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -176,12 +186,12 @@ textarea {
 
 .primary:hover,
 .button:hover {
-  background: #2349c7;
+  background: #122334;
 }
 
 .pill {
-  background: #e6edff;
-  color: #2b5cff;
+  background: rgba(138, 13, 21, 0.12);
+  color: var(--brand-secondary);
   padding: 6px 12px;
   border-radius: 999px;
   font-weight: 600;
@@ -216,11 +226,11 @@ textarea {
   gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
-  background: #f6f8fe;
+  background: #f3f5fa;
 }
 
 .table-row.header {
-  background: #e8eefc;
+  background: #e4e9f3;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 12px;
@@ -237,12 +247,12 @@ textarea {
 
 .list li {
   padding: 12px 16px;
-  background: #f6f8fe;
+  background: #f3f5fa;
   border-radius: 12px;
 }
 
 .muted {
-  color: #5b667a;
+  color: var(--brand-muted);
 }
 
 .flash-wrapper {
@@ -271,13 +281,13 @@ textarea {
 
 .pdf .site-header {
   background: #fff;
-  color: #1b1f2a;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--brand-ink);
+  border-bottom: 1px solid var(--brand-outline);
 }
 
 .pdf .brand-logo {
   box-shadow: none;
-  border: 1px solid #e2e8f0;
+  border: none;
 }
 
 .pdf .content {
@@ -287,7 +297,21 @@ textarea {
 
 .pdf .card {
   box-shadow: none;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--brand-outline);
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.report-grid .card {
+  margin-bottom: 0;
+}
+
+.report-summary .card-header {
+  margin-bottom: 20px;
 }
 
 @media (max-width: 768px) {
