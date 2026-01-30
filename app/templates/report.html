@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>MOD Report • {{ shift.date.strftime('%B %d, %Y') }}</h2>
+      <span class="pill">{{ shift.schedule }}</span>
+    </div>
+    <div class="grid three">
+      <div>
+        <p><strong>MOD:</strong> {{ shift.mod.name }}</p>
+        <p><strong>Status:</strong> {{ shift.status|capitalize }}</p>
+      </div>
+      <div>
+        <p><strong>Occupancy:</strong> {{ shift.occupancy or "-" }}%</p>
+        <p><strong>Arrivals:</strong> {{ shift.arrivals or "-" }}</p>
+        <p><strong>Departures:</strong> {{ shift.departures or "-" }}</p>
+      </div>
+      <div>
+        <p><strong>NPS Score:</strong> {{ shift.nps_score or "-" }}</p>
+        <p><strong>NPS Rank:</strong> {{ shift.nps_rank or "-" }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Leaders Present</h3>
+    <div class="grid three">
+      <p><strong>GM/AGM:</strong> {{ shift.gm_agm or "-" }}</p>
+      <p><strong>Housekeeping:</strong> {{ shift.housekeeping or "-" }}</p>
+      <p><strong>Food &amp; Beverage:</strong> {{ shift.food_beverage or "-" }}</p>
+      <p><strong>Sales:</strong> {{ shift.sales or "-" }}</p>
+      <p><strong>Aquatics:</strong> {{ shift.aquatics or "-" }}</p>
+      <p><strong>Retail/Attractions:</strong> {{ shift.retail_attractions or "-" }}</p>
+      <p><strong>Kids Entertainment:</strong> {{ shift.kids_entertainment or "-" }}</p>
+      <p><strong>Guest Services:</strong> {{ shift.guest_services or "-" }}</p>
+      <p><strong>HR:</strong> {{ shift.hr or "-" }}</p>
+      <p><strong>Finance:</strong> {{ shift.finance or "-" }}</p>
+      <p><strong>Engineering:</strong> {{ shift.engineering or "-" }}</p>
+      <p><strong>IT:</strong> {{ shift.it or "-" }}</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Incidents</h3>
+    {% if shift.incidents %}
+      <ul class="list">
+        {% for incident in shift.incidents %}
+          <li>
+            <strong>{{ incident.code }}</strong> at {{ incident.incident_time.strftime('%I:%M %p') }} — {{ incident.location }}
+            <div class="muted">{{ incident.notes or "No notes" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No incidents reported.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Downtime</h3>
+    {% if shift.downtimes %}
+      <ul class="list">
+        {% for downtime in shift.downtimes %}
+          <li>
+            <strong>{{ downtime.outlet }}</strong> — {{ downtime.start_time.strftime('%I:%M %p') }}
+            {% if downtime.end_time %}
+              to {{ downtime.end_time.strftime('%I:%M %p') }}
+            {% else %}
+              (ongoing)
+            {% endif %}
+            <div class="muted">{{ downtime.reason }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No downtime reported.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Guest Opportunities</h3>
+    {% if shift.guest_opportunities %}
+      <ul class="list">
+        {% for opportunity in shift.guest_opportunities %}
+          <li>
+            <strong>{{ opportunity.last_name }}</strong> • Room {{ opportunity.room }}
+            <div>{{ opportunity.description }}</div>
+            <div class="muted">{{ opportunity.compensation or "No compensation listed" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No guest opportunities recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Room Inspections</h3>
+    {% if shift.room_inspections %}
+      <ul class="list">
+        {% for inspection in shift.room_inspections %}
+          <li>
+            <strong>Room {{ inspection.room_number }}</strong> ({{ inspection.room_type }})
+            <div class="muted">Successes: {{ inspection.successes or "None" }}</div>
+            <div class="muted">Opportunities: {{ inspection.opportunities or "None" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No room inspections recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Outlet Inspections</h3>
+    {% if shift.outlet_inspections %}
+      <ul class="list">
+        {% for inspection in shift.outlet_inspections %}
+          <li>
+            <strong>{{ inspection.outlet }}</strong> at {{ inspection.inspection_time.strftime('%I:%M %p') }}
+            <div class="muted">Successes: {{ inspection.successes or "None" }}</div>
+            <div class="muted">Opportunities: {{ inspection.opportunities or "None" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No outlet inspections recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>High Paws</h3>
+    {% if shift.high_paws %}
+      <ul class="list">
+        {% for high_paw in shift.high_paws %}
+          <li>
+            <strong>{{ high_paw.pack_members }}</strong> • {{ high_paw.department }}
+            <div class="muted">{{ high_paw.description }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No High Paws recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>MOD Meals</h3>
+    {% if shift.mod_meals %}
+      <ul class="list">
+        {% for meal in shift.mod_meals %}
+          <li>
+            <strong>{{ meal.outlet }}</strong> • {{ meal.menu_item }}
+            <div class="muted">{{ meal.feedback or "No feedback" }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No MOD meals recorded.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h3>Quality Assurance, Suggestions &amp; Notes</h3>
+    <p><strong>Quality Assurance:</strong> {{ shift.quality_assurance or "None" }}</p>
+    <p><strong>Suggestions:</strong> {{ shift.suggestions or "None" }}</p>
+    <p><strong>Shift Notes:</strong> {{ shift.shift_notes or "None" }}</p>
+  </section>
+
+  <section class="card">
+    <h3>Pass Down</h3>
+    <p><strong>Pass Down Time:</strong> {{ shift.pass_down_time.strftime('%I:%M %p') if shift.pass_down_time else "-" }}</p>
+    <p><strong>Next MOD:</strong> {{ shift.pass_down_next_mod or "-" }}</p>
+    <p><strong>Pass Down Notes:</strong> {{ shift.pass_down_notes or "None" }}</p>
+  </section>
+{% endblock %}
