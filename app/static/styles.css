@@ -291,6 +291,12 @@ textarea {
   background: #f3f5fa;
 }
 
+.email {
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+  word-break: break-all; /* prevents long emails from stretching the table */
+}
+
 .table-row.header {
   background: #e4e9f3;
   font-weight: 600;
